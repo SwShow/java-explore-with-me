@@ -62,7 +62,8 @@ public class StatisticClient implements HttpStatisticClient {
         }
         URI uri = uriBuilder.build().encode().toUri();
         return rest.exchange(uri, HttpMethod.GET, null,
-                new ParameterizedTypeReference<List<ViewStats>>(){});
+                new ParameterizedTypeReference<List<ViewStats>>() {
+                });
     }
 
     public static String dateTimeToStr(LocalDateTime value) {
@@ -71,4 +72,4 @@ public class StatisticClient implements HttpStatisticClient {
         }
         return formatter.format(value);
     }
- }
+}

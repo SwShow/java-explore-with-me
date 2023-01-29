@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class EndpointHit {
+
     private String app;
 
     private String uri;

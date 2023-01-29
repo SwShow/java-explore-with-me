@@ -26,9 +26,9 @@ public class StatController {
 
     @GetMapping("/stats") // List<ViewStats>
     public ResponseEntity<Object> getStats(@RequestParam String start,
-                                    @RequestParam String end,
-                                    @RequestParam String[] uris,
-                                    @RequestParam(defaultValue = "false") Boolean unique) {
+                                           @RequestParam String end,
+                                           @RequestParam String[] uris,
+                                           @RequestParam(defaultValue = "false") Boolean unique) {
         log.info("get statistic for uris {}", uris);
 
         return new ResponseEntity<>(statService.getStats(start, end, uris, unique), HttpStatus.OK);
