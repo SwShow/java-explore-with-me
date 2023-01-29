@@ -16,7 +16,7 @@ public interface StatRepository extends JpaRepository<Hit, Long> {
             "hit.timestamp >= :start " +
             "AND hit.timestamp <= :end " +
             "AND hit.uri IN :uris " +
-            "GROUP BY hit.app, hit.uri")
+            "GROUP BY hit.app, hit.uri ORDER BY COUNT(hit.id) DESC")
     List<ViewStats> getDistinctStats(LocalDateTime start, LocalDateTime end, String[] uris);
 
     @Query("SELECT  NEW ru.yandex.practicum.stat.model.ViewStats(hit.app, hit.uri, COUNT(hit.uri)) " +
@@ -24,6 +24,6 @@ public interface StatRepository extends JpaRepository<Hit, Long> {
             "hit.timestamp >= :start " +
             "AND hit.timestamp <= :end " +
             "AND hit.uri IN :uris " +
-            "GROUP BY hit.app, hit.uri")
+            "GROUP BY hit.app, hit.uri ORDER BY COUNT(hit.id) DESC")
     List<ViewStats> getStats(LocalDateTime start, LocalDateTime end, String[] uris);
 }
