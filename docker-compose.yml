@@ -1,26 +1,26 @@
 version: '3.8'
 services:
-  service:
-    build: service
+  ewm-service:
+    build: ewm-service
     image: ewm-service
     container_name: ewm-service
     ports:
       - "8080:8080"
     depends_on:
-      - stat
+      - service
     environment:
       - STAT_SERVER_URL=http://server:9090
 
-  stat:
-    build: stat
-    image: ewm-stat
-    container_name: ewm-stat
+  service:
+    build: ./ewm-stats/service
+    image: ewm-statistic
+    container_name: ewm-statistic
     ports:
       - "9090:9090"
     depends_on:
       - db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/stat
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/service
       - SPRING_DATASOURCE_USER=root
       - SPRING_DATASOURCE_PASSWORD=root
 
@@ -33,6 +33,6 @@ services:
       - "6541:5432"
     environment:
       - TZ=Europe/Moscow
-      - POSTGRES_DB=stat
+      - POSTGRES_DB=service
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
