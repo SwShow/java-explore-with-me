@@ -1,4 +1,4 @@
-/*package ru.practicum;
+package ru.practicum;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,4 +38,4 @@ public class StatsClient {
                 .timestamp(String.valueOf(LocalDateTime.now()))
                 .build();
     }
-}*/
+}

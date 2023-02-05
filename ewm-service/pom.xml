@@ -10,8 +10,8 @@
     </parent>
 
     <artifactId>ewm-service</artifactId>
-
-    <name>ExploreWithMe Service</name>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>ewm-service</name>
 
     <properties>
         <java.version>11</java.version>

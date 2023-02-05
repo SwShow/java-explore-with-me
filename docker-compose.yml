@@ -13,26 +13,23 @@ services:
 
   service:
     build: ./ewm-stats/service
-    image: ewm-statistic
-    container_name: ewm-statistic
+    image: ewm-stats
+    container_name: ewm-stats
     ports:
       - "9090:9090"
     depends_on:
-      - db
+      - db-stats
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/service
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-stats:5432/service
       - SPRING_DATASOURCE_USER=root
       - SPRING_DATASOURCE_PASSWORD=root
 
-  db:
+  db-stats:
     image: postgres:13.7-alpine
-    container_name: db
-    volumes:
-      - /ewm-postgresql-db
+    container_name: db-stats
     ports:
       - "6541:5432"
     environment:
-      - TZ=Europe/Moscow
       - POSTGRES_DB=service
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
