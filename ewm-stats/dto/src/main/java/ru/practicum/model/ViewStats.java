@@ -1,7 +1,7 @@
 package ru.practicum.model;
 
 import lombok.*;
-
+@Data
 @Getter
 @Setter
 @Builder

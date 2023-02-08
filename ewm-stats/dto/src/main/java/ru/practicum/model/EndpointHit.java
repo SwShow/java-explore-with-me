@@ -1,14 +1,15 @@
 package ru.practicum.model;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.validation.annotation.Validated;
 
+@Data
 @Validated
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class EndpointHit {
     private long id;
 
