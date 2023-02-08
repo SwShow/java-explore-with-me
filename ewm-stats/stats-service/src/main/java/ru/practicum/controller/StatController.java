@@ -5,20 +5,23 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.model.EndpointHit;
 import ru.practicum.service.StatService;
 
+import javax.validation.Valid;
+
 @Slf4j
 @RestController
-@RequestMapping(path = "")
+@Validated
 @RequiredArgsConstructor
 public class StatController {
 
     private final StatService statService;
 
     @PostMapping("/hit")
-    public ResponseEntity<Object> saveHit(@RequestBody EndpointHit endpoint) {
+    public ResponseEntity<Object> saveHit(@RequestBody @Valid EndpointHit endpoint) {
         log.info("save endpointHit uri {}", endpoint.getUri());
         statService.save(endpoint);
         return new ResponseEntity<>(HttpStatus.CREATED);

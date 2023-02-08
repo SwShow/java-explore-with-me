@@ -1,16 +1,15 @@
 package ru.practicum.repository;
+import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.practicum.model.Hit;
 import ru.practicum.model.ViewStats;
-
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface StatRepository extends JpaRepository<Hit, Long> {
+public interface EwmStatRepository extends JpaRepository<Hit, Long> {
     @Query("SELECT NEW ru.practicum.model.ViewStats(hit.app, hit.uri, COUNT(DISTINCT hit.uri)) " +
             "FROM Hit hit WHERE " +
             "hit.timestamp >= :start " +

@@ -10,7 +10,7 @@ import org.springframework.validation.annotation.Validated;
 @Setter
 @Builder
 public class EndpointHit {
-    private Integer id;
+    private long id;
 
     private String app;
 

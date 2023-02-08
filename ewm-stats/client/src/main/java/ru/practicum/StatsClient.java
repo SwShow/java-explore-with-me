@@ -1,41 +1,64 @@
 package ru.practicum;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import ru.practicum.model.EndpointHit;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+import ru.practicum.model.HitRequest;
 
-import javax.servlet.http.HttpServletRequest;
-import java.net.http.HttpClient;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
-public class StatsClient {
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private final String application;
-    private final String statsServiceUri;
-    private final ObjectMapper objectMapper;
-    private final HttpClient httpClient;
+public class StatsClient extends BaseClient {
 
-    public StatsClient(@Value("${spring.application.name}") String application,
-        @Value("${stat.service-stat.uri:http://localhost:9090}") String statsServiceUri,
-                       ObjectMapper objectMapper) {
-        this.application= application;
-        this.statsServiceUri = statsServiceUri;
-        this.objectMapper = objectMapper;
-        this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(2))
-                .build();
+    public StatsClient(@Value("${server.url}") String serverUrl, RestTemplateBuilder builder) {
+        super(
+                builder
+                        .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
+                        .requestFactory(HttpComponentsClientHttpRequestFactory::new)
+                        .build()
+        );
     }
 
-    public void hit(HttpServletRequest request) {
-        EndpointHit hit = EndpointHit.builder()
-                .app(application)
-                .ip(request.getRemoteAddr())
-                .uri(request.getRequestURI())
-                .timestamp(String.valueOf(LocalDateTime.now()))
-                .build();
+    public ResponseEntity<Object> createHit(HitRequest hitDtoRequest) {
+        return post("/hit", hitDtoRequest);
     }
+
+    public ResponseEntity<Object> getStats(LocalDateTime start,
+                                           LocalDateTime end,
+                                           Optional<List<String>> uri,
+                                           boolean unique) {
+
+        String path;
+        Map<String, Object> parameters;
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        if (uri.isPresent()) {
+            parameters = Map.of(
+                    "start", start.format(formatter),
+                    "end", end.format(formatter),
+                    "uri", uri.get(),
+                    "unique", unique
+            );
+
+            path = "/stats?start={start}&end={end}&uri={uri}&unique={unique}";
+        } else {
+            parameters = Map.of(
+                    "start", start.format(formatter),
+                    "end", end.format(formatter),
+                    "unique", unique
+            );
+            path = "/stats?start={start}&end={end}&unique={unique}";
+        }
+
+        return get(path, parameters);
+    }
+
 }
