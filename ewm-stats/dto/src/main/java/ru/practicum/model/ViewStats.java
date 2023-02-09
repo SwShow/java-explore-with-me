@@ -1,6 +1,7 @@
 package ru.practicum.model;
 
 import lombok.*;
+
 @Data
 @Getter
 @Setter
@@ -8,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ViewStats {
+
     private Integer id;
     private String app;
 
