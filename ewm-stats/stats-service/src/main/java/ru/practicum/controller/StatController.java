@@ -8,32 +8,33 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.model.EndpointHit;
+import ru.practicum.model.ViewStats;
 import ru.practicum.service.StatService;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @Slf4j
-@RestController
+@RestController("/")
 @Validated
 @RequiredArgsConstructor
 public class StatController {
 
     private final StatService statService;
 
-    @PostMapping("/hit")
+    @PostMapping("hit")
     public ResponseEntity<Object> saveHit(@RequestBody @Valid EndpointHit endpoint) {
         log.info("save endpointHit uri {}", endpoint.getUri());
-        statService.save(endpoint);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(statService.save(endpoint), HttpStatus.CREATED);
     }
 
-    @GetMapping("/stats") // List<ViewStats>
-    public ResponseEntity<Object> getStats(@RequestParam String start,
-                                           @RequestParam String end,
-                                           @RequestParam String[] uris,
-                                           @RequestParam(defaultValue = "false") Boolean unique) {
-        log.info("get statistic for uris {}", uris);
+    @GetMapping("stats") // List<ViewStats>
+    public  List<ViewStats> getStats(@RequestParam String start,
+                                     @RequestParam String end,
+                                     @RequestParam List<String> uris,
+                                     @RequestParam(defaultValue = "false") Boolean unique) {
+        log.info("get statistic for uris:" + uris + "start:" + start + "end:" + end);
 
-        return new ResponseEntity<>(statService.getStats(start, end, uris, unique), HttpStatus.OK);
+        return statService.getStats(start, end, uris, unique);
     }
 }

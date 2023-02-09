@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface StatService {
 
-    void save(EndpointHit endpointHit);
+    EndpointHit save(EndpointHit endpointHit);
 
-    List<ViewStats> getStats(String start, String end, String[] uris, Boolean uniq);
+    List<ViewStats> getStats(String start, String end, List<String> uris, Boolean uniq);
 }
