@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.mapper.HitMapper;
 import ru.practicum.model.EndpointHit;
 import ru.practicum.model.ViewStats;
-import ru.practicum.repository.StatsRepository;
+import ru.practicum.repository.StatRepo;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -19,7 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 public class StatServiceImpl implements StatService {
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private final StatsRepository statRepository;
+    private final StatRepo statRepository;
 
     @Override
     public EndpointHit save(EndpointHit hit) {
@@ -35,10 +35,13 @@ public class StatServiceImpl implements StatService {
         LocalDateTime endDate = LocalDateTime.parse(URLDecoder.decode(end, StandardCharsets.UTF_8),
                 DATE_TIME_FORMATTER);
         log.info("startDate:" + startDate + "endDate:" + endDate + "uris:" + uris);
+        List<ViewStats> list;
         if (uniq) {
-            return statRepository.findByUriAndUniqueIp(startDate, endDate, uris);
+            list = statRepository.findByUriAndUniqueIp(startDate, endDate, uris);
         } else {
-            return statRepository.findByUri(startDate, endDate, uris);
+            list = statRepository.findByUri(startDate, endDate, uris);
         }
+        log.info("list:" + list);
+        return list;
     }
 }
