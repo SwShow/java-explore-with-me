@@ -1,5 +1,6 @@
 package ru.practicum.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.springframework.validation.annotation.Validated;
 
@@ -15,10 +16,10 @@ public class EndpointHit {
 
     private String app;
 
-    private String uri;
-
     private String ip;
 
+    private String uri;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private String timestamp;
 
 }
