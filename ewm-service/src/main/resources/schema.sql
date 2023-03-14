@@ -61,7 +61,7 @@ create table if not exists events
     annotation
     varchar
 (
-    1000
+    100
 ),
     category_id bigint not null references categories
 (
@@ -76,7 +76,7 @@ create table if not exists events
 ),
     event_date timestamp
   without time zone not null,
-    initiator_id bigint not null references users
+    requester_id bigint not null references users
 (
     id
 )
@@ -86,12 +86,12 @@ create table if not exists events
     paid boolean not null,
     participant_limit bigint,
     published_on timestamp
-  without time zone,
+  without time zone not null,
     request_moderation boolean not null,
     state varchar not null,
     title varchar
 (
-    1000
+    100
 ),
     views bigint default 0,
     constraint pk_events primary key

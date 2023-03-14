@@ -27,7 +27,7 @@ public class CompilationServiceImpl implements CompilationService {
     private final CompilationRepository compilationRepository;
 
     @Override
-    public Object save(NewCompilationDto compilationDto) {
+    public CompilationDto save(NewCompilationDto compilationDto) {
         log.info("получен запрос на добавление новой подборки админом");
         List<Event> events = eventRepository.findAllByIdIn(compilationDto.getEvents());
         if (compilationDto.getEvents().size() != events.size()) {
@@ -68,16 +68,10 @@ public class CompilationServiceImpl implements CompilationService {
         log.info("Получен запрос на получение подборок событий");
         Pageable pageable = PageRequest.of(from, size);
 
-        List<CompilationDto> compilations = compilationRepository.findAll(pageable).stream()
+        return compilationRepository.findAll(pageable).stream()
                 .filter(comp -> comp.getPinned() == pinned)
                 .map(CompilationMapper.INSTANCE::toCompilationDto)
                 .collect(Collectors.toList());
-
-        /*List<Event> events = compilations.stream()
-                .map(Compilation::getEvents)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList())*/
-        return compilations;
     }
 
     @Override

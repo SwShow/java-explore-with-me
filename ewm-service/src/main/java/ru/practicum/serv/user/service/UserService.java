@@ -5,9 +5,9 @@ import ru.practicum.serv.user.dto.UserDto;
 import java.util.List;
 
 public interface UserService {
-    public Object save(UserDto userDto);
+    UserDto save(UserDto userDto);
 
-    Object findUsers(List<Long> ids, int from, int size);
+    List<UserDto> findUsers(List<Long> ids, int from, int size);
 
     void deleteUser(Long userId);
 }
