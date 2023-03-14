@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.mapper.HitMapper;
 import ru.practicum.model.EndpointHit;
+import ru.practicum.model.HitRequest;
 import ru.practicum.model.ViewStats;
 import ru.practicum.repository.StatRepo;
 
@@ -22,10 +23,15 @@ public class StatServiceImpl implements StatService {
     private final StatRepo statRepository;
 
     @Override
-    public EndpointHit save(EndpointHit hit) {
-        EndpointHit endpointHit = HitMapper.toEndpointHit(statRepository.save(HitMapper.toHit(hit)));
-        log.info("endpointHit:" + endpointHit);
-        return endpointHit;
+    public EndpointHit save(HitRequest hitRequest) {
+        EndpointHit hit = EndpointHit.builder()
+                .app(hitRequest.getApp())
+                .ip(hitRequest.getIp())
+                .uri(hitRequest.getUri())
+                .timestamp(hitRequest.getTimestamp())
+                .build();
+        log.info("endpointHit:" + hit);
+        return HitMapper.toEndpointHit(statRepository.save(HitMapper.toHit(hit)));
     }
 
     @Override
