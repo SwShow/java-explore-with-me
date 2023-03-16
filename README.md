@@ -41,7 +41,7 @@ Template repository for ExploreWithMe project.
    Для проверки функциональности postman-тестами необходимо сначала запустить 4 первых теста из коллекции Main-service
 для заполнения базы данными.
 
-   Ссылка на PR:
+   Ссылка на PR: https://github.com/SwShow/java-explore-with-me/pull/7
 
 Схема базы данных основного сервиса:
 
