@@ -14,6 +14,7 @@ import ru.practicum.serv.compilation.dto.NewCompilationDto;
 import ru.practicum.serv.compilation.service.CompilationService;
 import ru.practicum.serv.event.dto.UpdateEventAdminRequest;
 import ru.practicum.serv.event.service.EventService;
+import ru.practicum.serv.message.service.MessageService;
 import ru.practicum.serv.user.dto.UserDto;
 import ru.practicum.serv.user.service.UserService;
 
@@ -33,6 +34,7 @@ public class AdminController {
     private final CategoryService categoryService;
     private final EventService eventService;
     private final CompilationService compilationService;
+    private final MessageService messageService;
 
     @PostMapping("/users")
     public ResponseEntity<Object> save(@RequestBody @Valid UserDto userDto) {
@@ -116,11 +118,16 @@ public class AdminController {
         return new ResponseEntity<>(compilationService.pathCompilation(compId, updateReq), HttpStatus.OK);
     }
 
-   /* @GetMapping("compilations")
-    public ResponseEntity<Object> getAllCompilations(@RequestParam(required = false) Boolean pinned,
-                                                     @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
-                                                     @Min(1) @RequestParam(defaultValue = "10") Integer size) {
-        log.info("Получен запрос на получение подборок событий");
-        return new ResponseEntity<>(compilationService.getAllCompilations(pinned, from, size), HttpStatus.OK);
-    }*/
+    @PostMapping("/message/{eventId}")
+    public ResponseEntity<Object> addMessage(@PathVariable @Min(1) Long eventId,
+                                             @RequestBody String message) {
+        log.info("Получен запрос на добавление сообщения от админа к событию:" + eventId);
+        return new ResponseEntity<>(messageService.addMessage(eventId, message), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/events/{eventId}/messages")
+    public ResponseEntity<Object> getMessages(@PathVariable @Min(1) Long eventId) {
+        log.info("Получение сообщений админа о событии {}", eventId);
+        return new ResponseEntity<>(messageService.getMessage(eventId),HttpStatus.OK);
+    }
 }

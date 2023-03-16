@@ -21,6 +21,7 @@ import ru.practicum.serv.event.repository.EventsRepository;
 import ru.practicum.serv.exception.ConflictException;
 import ru.practicum.serv.exception.NotFoundException;
 import ru.practicum.serv.exception.ValidationException;
+import ru.practicum.serv.message.service.MessageService;
 import ru.practicum.serv.statuses.SortEv;
 import ru.practicum.serv.statuses.State;
 import ru.practicum.serv.user.model.User;
@@ -46,6 +47,7 @@ public class EventServiceImpl implements EventService {
     private final EventsRepository eventRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final MessageService messageService;
     private final StatistClient client;
 
     @Transactional
@@ -126,6 +128,9 @@ public class EventServiceImpl implements EventService {
                 throw new ConflictException("Невозможно опубликовать это событие");
             }
             event.setState(PUBLISHED);
+          //  if (!messageService.findAllByEventId(eventId).isEmpty()) {
+                messageService.deleteAllByEventId(eventId);
+          //  }
             log.info("Установлен статус PUBLISHED");
         }
         if (updateEventAdminRequest.getStateAction().equals(REJECT_EVENT)) {
@@ -229,7 +234,7 @@ public class EventServiceImpl implements EventService {
                 && updateEventUserRequest.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
             throw new ConflictException("Время редактирования события закончилось");
         }
-        if (updateEventUserRequest.getStateAction() == SEND_TO_REVIEW) {
+        if (updateEventUserRequest.getStateAction() == SEND_TO_REVIEW || event.getState() == AMEND) {
             event.setState(State.PENDING);
         }
         if (updateEventUserRequest.getStateAction() == CANCEL_REVIEW) {
