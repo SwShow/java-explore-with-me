@@ -54,7 +54,7 @@ public class AdminController {
     public ResponseEntity<Void> deleteUser(@PathVariable @Min(1) Long userId) {
         log.info("получен запрос на удаление пользователя:" + userId);
         userService.deleteUser(userId);
-        return new ResponseEntity<>( HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PostMapping("/categories")
