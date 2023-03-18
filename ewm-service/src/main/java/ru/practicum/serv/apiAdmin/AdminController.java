@@ -10,18 +10,20 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.serv.category.dto.CategoryDto;
 import ru.practicum.serv.category.dto.NewCategoryDto;
 import ru.practicum.serv.category.service.CategoryService;
+import ru.practicum.serv.compilation.dto.CompilationDto;
 import ru.practicum.serv.compilation.dto.NewCompilationDto;
 import ru.practicum.serv.compilation.service.CompilationService;
-import ru.practicum.serv.event.dto.UpdateEventAdminRequest;
+import ru.practicum.serv.event.dto.EventDto;
 import ru.practicum.serv.event.service.EventService;
-import ru.practicum.serv.message.service.MessageService;
 import ru.practicum.serv.user.dto.UserDto;
+import ru.practicum.serv.user.dto.UserShortDto;
 import ru.practicum.serv.user.service.UserService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -34,30 +36,29 @@ public class AdminController {
     private final CategoryService categoryService;
     private final EventService eventService;
     private final CompilationService compilationService;
-    private final MessageService messageService;
 
     @PostMapping("/users")
-    public ResponseEntity<Object> save(@RequestBody @Valid UserDto userDto) {
+    public ResponseEntity<UserDto> save(@RequestBody @Valid UserShortDto userDto) {
         log.info("получен запрос на добавление пользователя:" + userDto);
         return new ResponseEntity<>(userService.save(userDto), HttpStatus.CREATED);
     }
 
     @GetMapping("/users")
-    public ResponseEntity<Object> findUsersOfIds(@RequestParam List<Long> ids, @PositiveOrZero @RequestParam(defaultValue = "0") int from,
+    public ResponseEntity<List<UserDto>> findUsersOfIds(@RequestParam List<Long> ids, @PositiveOrZero @RequestParam(defaultValue = "0") int from,
                                                  @Min(1) @RequestParam(defaultValue = "10") int size) {
         log.info("получен запрос на получение пользователей:" + ids);
         return new ResponseEntity<>(userService.findUsers(ids, from, size), HttpStatus.OK);
     }
 
     @DeleteMapping("/users/{userId}")
-    public ResponseEntity<Object> deleteUser(@PathVariable @Min(1) Long userId) {
+    public ResponseEntity<Void> deleteUser(@PathVariable @Min(1) Long userId) {
         log.info("получен запрос на удаление пользователя:" + userId);
         userService.deleteUser(userId);
-        return new ResponseEntity<>(true, HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>( HttpStatus.NO_CONTENT);
     }
 
     @PostMapping("/categories")
-    public ResponseEntity<Object> addCategory(@RequestBody @Valid CategoryDto category) {
+    public ResponseEntity<CategoryDto> addCategory(@RequestBody @Valid NewCategoryDto category) {
         log.info("получен запрос на добавление категории:" + category);
         return new ResponseEntity<>(categoryService.addCategory(category), HttpStatus.CREATED);
     }
@@ -70,36 +71,29 @@ public class AdminController {
     }
 
     @PatchMapping("/categories/{catId}")  // back CategoryDto
-    public ResponseEntity<Object> pathCategory(@PathVariable @Min(1) Long catId,
+    public ResponseEntity<CategoryDto> pathCategory(@PathVariable @Min(1) Long catId,
                                                @RequestBody @Valid NewCategoryDto dto) {
         log.info("получен запрос на изменение категории: {}", catId + "cat:" + dto);
         return new ResponseEntity<>(categoryService.pathCat(catId, dto), HttpStatus.OK);
     }
 
     @GetMapping("/events")
-    public ResponseEntity<Object> getEvents(@RequestParam(required = false) List<Long> users,
-                                            @RequestParam(required = false) List<String> states,
-                                            @RequestParam(required = false) List<Long> categories,
-                                            @RequestParam(required = false)
+    public ResponseEntity<Collection<EventDto>> getEvents(@RequestParam(required = false) List<Long> users,
+                                                          @RequestParam(required = false) List<String> states,
+                                                          @RequestParam(required = false) List<Long> categories,
+                                                          @RequestParam(required = false)
                                             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
-                                            @RequestParam(required = false)
+                                                          @RequestParam(required = false)
                                             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
-                                            @RequestParam(defaultValue = "0") Integer from,
-                                            @RequestParam(defaultValue = "10") Integer size) {
+                                                          @RequestParam(defaultValue = "0") Integer from,
+                                                          @RequestParam(defaultValue = "10") Integer size) {
         log.info("получен запрос от администратора на получение событий в категориях {}", categories);
         return new ResponseEntity<>(eventService.getEventsByAdmin(users, states, categories, rangeStart, rangeEnd,
                 from, size), HttpStatus.OK);
     }
 
-    @PatchMapping("/events/{eventId}")
-    public ResponseEntity<Object> patchEvent(@PathVariable @Min(1) Long eventId,
-                                             @RequestBody UpdateEventAdminRequest updateEventAdminRequest) {
-        log.info("получен запрос на редактирование данных события с id {} админом", eventId);
-        return new ResponseEntity<>(eventService.pathEventByAdmin(eventId, updateEventAdminRequest), HttpStatus.OK);
-    }
-
     @PostMapping("/compilations")
-    public ResponseEntity<Object> addCompilation(@RequestBody @Valid NewCompilationDto compilationDto) {
+    public ResponseEntity<CompilationDto> addCompilation(@RequestBody @Valid NewCompilationDto compilationDto) {
         log.info("получен запрос на добавление новой подборки админом");
         return new ResponseEntity<>(compilationService.save(compilationDto), HttpStatus.CREATED);
     }
@@ -112,22 +106,10 @@ public class AdminController {
     }
 
     @PatchMapping("/compilations/{compId}")
-    public ResponseEntity<Object> patchCompilation(@PathVariable @Min(1) Long compId,
+    public ResponseEntity<CompilationDto> patchCompilation(@PathVariable @Min(1) Long compId,
                                                    @RequestBody NewCompilationDto updateReq) {
         log.info("получен запрос на изменение подборки с ид-ом {}", compId);
         return new ResponseEntity<>(compilationService.pathCompilation(compId, updateReq), HttpStatus.OK);
     }
 
-    @PostMapping("/message/{eventId}")
-    public ResponseEntity<Object> addMessage(@PathVariable @Min(1) Long eventId,
-                                             @RequestBody String message) {
-        log.info("Получен запрос на добавление сообщения от админа к событию:" + eventId);
-        return new ResponseEntity<>(messageService.addMessage(eventId, message), HttpStatus.CREATED);
-    }
-
-    @GetMapping("/events/{eventId}/messages")
-    public ResponseEntity<Object> getMessages(@PathVariable @Min(1) Long eventId) {
-        log.info("Получение сообщений админа о событии {}", eventId);
-        return new ResponseEntity<>(messageService.getMessage(eventId),HttpStatus.OK);
-    }
 }

@@ -12,8 +12,8 @@ import javax.validation.constraints.NotEmpty;
 public class UserShortDto {
 
     @NotEmpty
-    private Long id;
+    private String name;
 
     @NotEmpty
-    private String name;
+    private String email;
 }

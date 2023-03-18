@@ -3,14 +3,16 @@ package ru.practicum.serv.category.service;
 import ru.practicum.serv.category.dto.CategoryDto;
 import ru.practicum.serv.category.dto.NewCategoryDto;
 
+import java.util.Collection;
+
 public interface CategoryService {
-    Object addCategory(CategoryDto category);
+    CategoryDto addCategory(NewCategoryDto category);
 
     void deleteCat(Long catId);
 
-    Object pathCat(Long catId, NewCategoryDto dto);
+    CategoryDto pathCat(Long catId, NewCategoryDto dto);
 
-    Object getAllCategories(Integer from, Integer size);
+    Collection<CategoryDto> getAllCategories(Integer from, Integer size);
 
-    Object getCategoryById(Long catId);
+    CategoryDto getCategoryById(Long catId);
 }

@@ -8,12 +8,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.StatistClient;
+import ru.practicum.model.ViewStats;
 import ru.practicum.serv.category.model.Category;
 import ru.practicum.serv.category.repository.CategoryRepository;
-import ru.practicum.serv.event.dto.EventDto;
-import ru.practicum.serv.event.dto.NewEventDto;
-import ru.practicum.serv.event.dto.UpdateEventAdminRequest;
-import ru.practicum.serv.event.dto.UpdateEventUserRequest;
+import ru.practicum.serv.event.dto.*;
 import ru.practicum.serv.event.mapper.EventMapper;
 import ru.practicum.serv.event.model.Event;
 import ru.practicum.serv.event.model.QEvent;
@@ -29,10 +27,7 @@ import ru.practicum.serv.user.repository.UserRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.practicum.serv.statuses.State.*;
@@ -78,15 +73,20 @@ public class EventServiceImpl implements EventService {
         }
 
         Collection<Event> events = eventRepository.findAll(expression, pageable).getContent();
-        return events.stream().map(EventMapper.INSTANCE::toEventDto)
+        Map<Long, Long> stats = getViewStats(events);
+        log.info("Map stats:" + stats);
+
+        return events.stream()
+                .peek(event -> event.setViews(stats.get(event.getId())))
+                .map(EventMapper.INSTANCE::toEventDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional
     @Override
-    public Collection<EventDto> getAllEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
-                                             LocalDateTime rangeEnd, Boolean onlyAvailable, SortEv sort, Integer from, Integer size,
-                                             HttpServletRequest httpRequest) {
+    public Collection<EventShortDto> getAllEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
+                                                  LocalDateTime rangeEnd, Boolean onlyAvailable, SortEv sort, Integer from, Integer size,
+                                                  HttpServletRequest httpRequest) {
         log.info("Получен запрос на получение событий с возможностью фильтрации");
         log.info("client ip: {}", httpRequest.getRemoteAddr());
         log.info("endpoint path: {}", httpRequest.getRequestURI());
@@ -110,7 +110,12 @@ public class EventServiceImpl implements EventService {
         }
         Collection<Event> events = eventRepository.findAll(expression, pageable).getContent();
         client.addHit(httpRequest);
-        return events.stream().map(EventMapper.INSTANCE::toEventDto)
+        Map<Long, Long> stats = getViewStats(events);
+        log.info("Map stats:" + stats);
+
+        return events.stream()
+                .peek(event -> event.setViews(stats.get(event.getId())))
+                .map(EventMapper.INSTANCE::toEventShortDto)
                 .collect(Collectors.toList());
     }
 
@@ -128,9 +133,7 @@ public class EventServiceImpl implements EventService {
                 throw new ConflictException("Невозможно опубликовать это событие");
             }
             event.setState(PUBLISHED);
-          //  if (!messageService.findAllByEventId(eventId).isEmpty()) {
-                messageService.deleteAllByEventId(eventId);
-          //  }
+            messageService.deleteAllByEventId(eventId);  // удалить сообщения админа пользователю
             log.info("Установлен статус PUBLISHED");
         }
         if (updateEventAdminRequest.getStateAction().equals(REJECT_EVENT)) {
@@ -164,6 +167,11 @@ public class EventServiceImpl implements EventService {
         log.info("endpoint path: {}", httpRequest.getRequestURI());
         Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundException("Событие не найдено"));
         client.addHit(httpRequest);
+        Map<Long, Long> stats = getViewStats(List.of(event));
+        log.info("Map stats:" + stats);
+        if (!stats.isEmpty()) {
+            event.setViews(stats.get(event.getId()));
+        }
         return EventMapper.INSTANCE.toEventDto(event);
     }
 
@@ -175,7 +183,11 @@ public class EventServiceImpl implements EventService {
         }
         Pageable pageable = PageRequest.of(from, size);
         List<Event> events = eventRepository.findAllByInitiatorId(userId, pageable);
+        Map<Long, Long> stats = getViewStats(events);
+        log.info("Map stats:" + stats);
+
         return events.stream()
+                .peek(event -> event.setViews(stats.get(event.getId())))
                 .map(EventMapper.INSTANCE::toEventDto)
                 .collect(Collectors.toList());
     }
@@ -234,6 +246,7 @@ public class EventServiceImpl implements EventService {
                 && updateEventUserRequest.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
             throw new ConflictException("Время редактирования события закончилось");
         }
+        // добавлен статус для реализации новой функциональности
         if (updateEventUserRequest.getStateAction() == SEND_TO_REVIEW || event.getState() == AMEND) {
             event.setState(State.PENDING);
         }
@@ -252,6 +265,31 @@ public class EventServiceImpl implements EventService {
         Optional.ofNullable(updateEventUserRequest.getRequestModeration()).ifPresent(event::setRequestModeration);
         Event savedEvent = eventRepository.save(event);
         return EventMapper.INSTANCE.toEventDto(savedEvent);
+    }
+
+    public Map<Long, Long> getViewStats(Collection<Event> eventList) {
+        List<String> uris = eventList.stream()
+                .map(Event::getId)
+                .map(id -> "/events/" + id.toString())
+                .collect(Collectors.toList());
+        List<ViewStats> viewStats = client.getListStats(LocalDateTime.now().minusYears(1L),
+                LocalDateTime.now().plusYears(1L), uris, false);
+        log.info("LIST VIEWSTATS:" + viewStats);
+
+        return viewStats.stream()
+                .filter(statRecord -> statRecord.getApp().equals("ewm-service"))
+                .collect(Collectors.toMap(
+                        statRecord -> parseId(statRecord.getUri()),
+                                ViewStats::getHits
+                        )
+                );
+    }
+
+    public Long parseId(String str) {
+        int index = str.lastIndexOf('/');
+        String strId = str.substring(index + 1);
+        log.info("String STRID:" + strId);
+        return Long.parseLong(strId);
     }
 
 }

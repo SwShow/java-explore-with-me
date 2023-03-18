@@ -1,10 +1,7 @@
 package ru.practicum.serv.event.service;
 
 import org.springframework.stereotype.Service;
-import ru.practicum.serv.event.dto.EventDto;
-import ru.practicum.serv.event.dto.NewEventDto;
-import ru.practicum.serv.event.dto.UpdateEventAdminRequest;
-import ru.practicum.serv.event.dto.UpdateEventUserRequest;
+import ru.practicum.serv.event.dto.*;
 import ru.practicum.serv.statuses.SortEv;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,8 +18,8 @@ public interface EventService {
 
     EventDto getFullInfoEvent(Long id, HttpServletRequest request);
 
-    Collection<EventDto> getAllEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd,
-                                      Boolean onlyAvailable, SortEv sort, Integer from, Integer size, HttpServletRequest request);
+    Collection<EventShortDto> getAllEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd,
+                                           Boolean onlyAvailable, SortEv sort, Integer from, Integer size, HttpServletRequest request);
 
     List<EventDto> getEventOwner(Long userId, int from, int size);
 
