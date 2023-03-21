@@ -12,7 +12,7 @@ public interface RequestService {
 
     List<ParticipationRequestDto> getInfoUserRequestOther(Long userId);
 
-    ParticipationRequestDto addRequesrFromUser(Long userId, Long eventId);
+    ParticipationRequestDto addRequestFromUser(Long userId, Long eventId);
 
     ParticipationRequestDto cancelRequestOwner(Long userId, Long requestId);
 

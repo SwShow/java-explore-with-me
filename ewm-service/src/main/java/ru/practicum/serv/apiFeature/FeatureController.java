@@ -60,4 +60,11 @@ public class FeatureController {
         // В метод добавлена новая функциональность
         return new ResponseEntity<>(eventService.pathEventOwner(userId, eventId, updateEventUserRequest), HttpStatus.OK);
     }
+
+    @GetMapping("admin/pending")
+    public ResponseEntity<List<EventDto>> getPendingEvents(@RequestParam(defaultValue = "0") int from,
+                                                      @RequestParam(defaultValue = "10") int size) {
+       log.info("Получен запрос от администратора на получение событий, ожидающих публикации:");
+       return new ResponseEntity<>(eventService.getPendingEvents(from, size), HttpStatus.OK);
+    }
 }

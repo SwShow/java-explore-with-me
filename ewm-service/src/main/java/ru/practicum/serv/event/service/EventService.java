@@ -29,4 +29,5 @@ public interface EventService {
 
     EventDto pathEventOwner(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest);
 
+    List<EventDto> getPendingEvents(int from, int size);
 }

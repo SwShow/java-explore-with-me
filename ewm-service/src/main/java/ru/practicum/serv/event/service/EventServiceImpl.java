@@ -120,6 +120,21 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public List<EventDto> getPendingEvents(int from, int size) {
+        log.info("Получен запрос от администратора на получение событий, ожидающих публикации:");
+        Pageable pageable = PageRequest.of(from, size);
+        QEvent qEvent = QEvent.event;
+        BooleanExpression expression = qEvent.state.eq(State.PENDING);
+        Collection<Event> events = eventRepository.findAll(expression, pageable).getContent();
+        Map<Long, Long> stats = getViewStats(events);
+
+        return events.stream()
+                .peek(event -> event.setViews(stats.get(event.getId())))
+                .map(EventMapper.INSTANCE::toEventDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public EventDto pathEventByAdmin(Long eventId, UpdateEventAdminRequest updateEventAdminRequest) {
         log.info("получен запрос на редактирование данных события с id {} админом", eventId);
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Событие не найдено"));
@@ -267,6 +282,8 @@ public class EventServiceImpl implements EventService {
         return EventMapper.INSTANCE.toEventDto(savedEvent);
     }
 
+
+
     public Map<Long, Long> getViewStats(Collection<Event> eventList) {
         List<String> uris = eventList.stream()
                 .map(Event::getId)
@@ -274,7 +291,7 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
         List<ViewStats> viewStats = client.getListStats(LocalDateTime.now().minusYears(1L),
                 LocalDateTime.now().plusYears(1L), uris, false);
-        log.info("LIST VIEWSTATS:" + viewStats);
+        log.info("LIST VIEW STATS:" + viewStats);
 
         return viewStats.stream()
                 .filter(statRecord -> statRecord.getApp().equals("ewm-service"))
@@ -288,7 +305,7 @@ public class EventServiceImpl implements EventService {
     public Long parseId(String str) {
         int index = str.lastIndexOf('/');
         String strId = str.substring(index + 1);
-        log.info("String STRID:" + strId);
+        log.info("String STR ID:" + strId);
         return Long.parseLong(strId);
     }
 

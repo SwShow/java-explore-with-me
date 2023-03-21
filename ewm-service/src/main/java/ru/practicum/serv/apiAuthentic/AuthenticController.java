@@ -69,9 +69,9 @@ public class AuthenticController {
     }
 
     @PostMapping("requests")
-    public ResponseEntity<ParticipationRequestDto> addRequesrFromUser(@PathVariable Long userId, @RequestParam @Min(1) Long eventId) {
+    public ResponseEntity<ParticipationRequestDto> addRequestFromUser(@PathVariable Long userId, @RequestParam @Min(1) Long eventId) {
         log.info("Добавление запроса на участие в событии от пользователя {}", userId + "идентификатор события:" + eventId);
-        return new ResponseEntity<>(requestService.addRequesrFromUser(userId, eventId), HttpStatus.CREATED);
+        return new ResponseEntity<>(requestService.addRequestFromUser(userId, eventId), HttpStatus.CREATED);
     }
 
     @PatchMapping("requests/{requestId}/cancel")
