@@ -126,10 +126,8 @@ public class EventServiceImpl implements EventService {
         QEvent qEvent = QEvent.event;
         BooleanExpression expression = qEvent.state.eq(State.PENDING);
         Collection<Event> events = eventRepository.findAll(expression, pageable).getContent();
-        Map<Long, Long> stats = getViewStats(events);
 
         return events.stream()
-                .peek(event -> event.setViews(stats.get(event.getId())))
                 .map(EventMapper.INSTANCE::toEventDto)
                 .collect(Collectors.toList());
     }
