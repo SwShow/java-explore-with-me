@@ -110,7 +110,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public ParticipationRequestDto addRequesrFromUser(Long userId, Long eventId) {
+    public ParticipationRequestDto addRequestFromUser(Long userId, Long eventId) {
         log.info("Добавление запроса на участие в событии от пользователя {}", userId);
         userRepository.findById(userId).orElseThrow(RuntimeException::new);
         Event event = eventRepository.findById(eventId).orElseThrow(RuntimeException::new);

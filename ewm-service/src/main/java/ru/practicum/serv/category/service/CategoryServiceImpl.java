@@ -29,7 +29,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final EventsRepository eventRepository;
 
     @Override
-    public CategoryDto addCategory(CategoryDto categoryDto) {
+    public CategoryDto addCategory(NewCategoryDto categoryDto) {
         Category category = CategoryMapper.INSTANCE.toCategory(categoryDto);
         Category cat;
         try {

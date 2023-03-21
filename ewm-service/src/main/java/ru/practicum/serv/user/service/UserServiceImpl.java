@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.serv.exception.ConflictException;
 import ru.practicum.serv.user.dto.UserDto;
+import ru.practicum.serv.user.dto.UserShortDto;
 import ru.practicum.serv.user.mapper.UserMapper;
 import ru.practicum.serv.user.model.User;
 import ru.practicum.serv.user.repository.UserRepository;
@@ -20,7 +21,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDto save(UserDto userDto) {
+    public UserDto save(UserShortDto userDto) {
         if (userRepository.findByName(userDto.getName()).isPresent()) {
             throw new ConflictException("Это имя уже занято");
         }

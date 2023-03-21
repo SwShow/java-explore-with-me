@@ -6,10 +6,12 @@ import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import ru.practicum.model.EndpointHit;
 import ru.practicum.model.HitRequest;
+import ru.practicum.model.ViewStats;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Slf4j
 public class StatistClient {
@@ -36,6 +38,20 @@ public class StatistClient {
                 .bodyValue(hitRequest)
                 .retrieve()
                 .bodyToMono(EndpointHit.class)
+                .block();
+    }
+
+    public List<ViewStats> getListStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+        return webClient.get()
+                .uri(uriBuilder -> uriBuilder.path("/stats")
+                        .queryParam("start", start.format(DATE_TIME_FORMATTER))
+                        .queryParam("end", end.format(DATE_TIME_FORMATTER))
+                        .queryParam("uris", uris)
+                        .queryParam("unique", unique)
+                        .build())
+                .retrieve()
+                .bodyToFlux(ViewStats.class)
+                .collectList()
                 .block();
     }
 

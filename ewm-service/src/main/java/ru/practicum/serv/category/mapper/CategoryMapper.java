@@ -12,7 +12,7 @@ import ru.practicum.serv.category.model.Category;
 public interface CategoryMapper {
     CategoryMapper INSTANCE = Mappers.getMapper(CategoryMapper.class);
 
-    Category toCategory(CategoryDto categoryDto);
+    Category toCategory(NewCategoryDto categoryDto);
 
     CategoryDto toCategoryDto(Category category);
 
